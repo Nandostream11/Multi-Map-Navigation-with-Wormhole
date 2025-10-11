@@ -1,0 +1,5 @@
+wormhole_db_path: ~/ros2_ws/src/wormhole_nav/sql/wormholes.db
+
+maps:
+  roomA: ~/ros2_ws/src/wormhole_nav/maps/roomA.yaml
+  roomB: ~/ros2_ws/src/wormhole_nav/maps/roomB.yaml
