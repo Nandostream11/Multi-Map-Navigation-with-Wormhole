@@ -2,7 +2,7 @@
 #include <thread>
 #include <cmath>
 
-MultiMapActionServer::MultiMapActionServer() : Node("multi map action server"){
+MultiMapActionServer::MultiMapActionServer() : Node("multi_map_action_server"){
 
     std::string db_path=this->declare_parameter<std::string>("db_path", "wormholes.db");
     db_->open();
@@ -20,7 +20,8 @@ MultiMapActionServer::MultiMapActionServer() : Node("multi map action server"){
         [](const std::shared_ptr<GoalHandle>){ return rclcpp_action::CancelResponse::ACCEPT;
         },
         [this](const std::shared_ptr<GoalHandle> goal_handle){
-            std::thread{&MultiMapNavigate::execute, this, goal_handle}.detach();
+            using namespace std::placeholders;
+            std::thread{std::bind(&MultiMapActionServer::execute, this, _1), goal_handle}.detach();
         }
     );
 
@@ -34,24 +35,25 @@ MultiMapActionServer::MultiMapActionServer() : Node("multi map action server"){
 
 void MultiMapActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle){
     auto goal= goal_handle->get_goal();
-    MultiMapNavigate::Feedback feedback;
-    MultiMapNavigate::Result result;
+    auto feedback = std::make_shared<MultiMapNavigate::Feedback>();
+    auto result = std::make_shared<MultiMapNavigate::Result>();
 
-    std::string curr_map= map_manager_->getCurrentMap();
-    if(current_map.empty())  curr_map="default_map(roomA)"; //default starting map
+    std::string current_map= map_manager_->getCurrentMap();
+    if(current_map.empty())  current_map="default_map(roomA)"; //default starting map
 
-    if(goal->target_map==curr_map){
+    if(goal->target_map==current_map){
         RCLCPP_INFO(this->get_logger(), "Executing goal...");
-        bool ok=nav_->sendGoal(goal_pose);
-        result.success=ok;
+        bool ok=nav_->sendGoal(goal->target_pose);
+        result->success=ok;
+        result->message = ok ? "Navigated to target on same map" : "Navigation failed";
         goal_handle->succeed(result);
         return;
     }
 
-    auto list= db_->getWormholes(curr_map, goal->target_map);
+    auto list= db_->getWormholes(current_map, goal->target_map);
     if(list.empty()){
-        resullt.success=false;
-        result.message="No wormhole found from "+curr_map+" to "+goal->target_map;
+        result->success=false;
+        result->message = "No wormhole found from " + current_map + " to " + goal->target_map;
         goal_handle->abort(result);
         return;
     }
@@ -63,21 +65,44 @@ void MultiMapActionServer::execute(const std::shared_ptr<GoalHandle> goal_handle
     wh_pose.pose.position.y=wh.y;
     wh_pose.pose.orientation.w=1.0;
 
-    RCLCPP_INFO(this->get_logger(), "Navigating to wormhole in map: %s", curr_map.c_str());
+    RCLCPP_INFO(this->get_logger(), "Navigating to wormhole in map: %s", current_map.c_str());
+    feedback->current_state = "Navigating to wormhole...";
+    goal_handle->publish_feedback(feedback);
+
     nav_->cancelGoal(); //cancel any existing goal
+
+    bool to_wormhole_ok = nav_->sendGoal(wh_pose);
+    if (!to_wormhole_ok) {
+        result->success = false;
+        result->message = "Failed to reach wormhole in " + current_map;
+        goal_handle->abort(result);
+        return;
+    }
+
+    feedback->current_state = "Reached wormhole, switching map...";
+    goal_handle->publish_feedback(feedback);
 
     std::string map_path=this->get_parameter("maps."+ goal->target_map).as_string();
     if(!map_manager_->switchToMap(goal->target_map,map_path)){
-        result.success=false;
-        result.message="Failed to switch to map "+goal->target_map;
+        result->success=false;
+        result->message="Failed to switch to map "+goal->target_map;
         goal_handle->abort(result);
         return;
     }
 
     RCLCPP_INFO(this->get_logger(), "Switch success, moving to final target...");
     bool ok=nav_->sendGoal(goal->target_pose);
-    result.success=ok;
-    result.message=ok ? "Navigation succeeded" : "Navigation failed";
+    result->success=ok;
+    result->message=ok ? "Navigation succeeded" : "Navigation failed";
     goal_handle->succeed(result);
 
-}    
+}
+
+int main(int argc, char **argv)
+{
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<MultiMapActionServer>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+  return 0;
+}
