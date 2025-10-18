@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 
-<robot name="bumperbot" xmlns:xacro="http://ros.org/wiki/xacro">
-    <ros2_control name = "RobotSystem" type = "system">
-        <xacro:if value = "$(arg is_ignition)">
-        <!-- you are on ros2 humble -->
+<robot name="wbot" xmlns:xacro="http://ros.org/wiki/xacro">
+    <ros2_control name="RobotSystem" type="system">
+        <!-- If using Gazebo Classic 11  -->
+        <xacro:if value="$(arg is_classic)">
             <hardware>
-                <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            <plugin>gazebo_ros2_control/GazeboSimSystem</plugin>
             </hardware>
         </xacro:if>
-    <!-- you are on ros2 jazzy then this will be used -->
-        <xacro:unless value = "$(arg is_ignition)">
+
+        <!-- Otherwise, using Gazebo Sim / Ignition -->
+        <xacro:unless value="$(arg is_classic)">
             <hardware>
-                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            <plugin>gz_ros2_control/GazeboSystem</plugin>
             </hardware>
         </xacro:unless>
-
+   
         <joint name="wheel_right_joint">
             <!-- how to send command to the hardware -->
             <command_interface name = "velocity">

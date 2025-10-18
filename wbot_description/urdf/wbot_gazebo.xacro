@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="bumperbot" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="wbot" xmlns:xacro="http://ros.org/wiki/xacro">
 
     <gazebo reference = "wheel_right_link">
         <mu1>100000000000000.0</mu1>
@@ -40,23 +40,21 @@
         <maxVel>0.1</maxVel>
     </gazebo>
 
+ <!-- ros2_control plugin for Gazebo Classic 11 -->
     <gazebo>
-        <!-- is ignition is set to true checks -->
-        <xacro:if value = "$(arg is_ignition)"> 
-            <plugin filename="ign_ros2_control-system" name = "ign_ros2_control::IgnitionROS2ControlPlugin">
-                <parameters>$(find bumperbot_controller)/config/bumperbot_controllers.yaml</parameters>
-            </plugin>
-            <plugin filename = "ignition-gazebo-imu-system" name = "ignition::gazebo::systems::Imu">
-            </plugin>
-        </xacro:if>
-        <!-- if you use higher then humble like jazzy -->
-        <xacro:unless value = "$(arg is_ignition)">
-            <plugin filename = "gz_ros2_control-system" name = "gz_ros2_control::GazeboSimROS2ControlPlugin">
-                <parameters>$(find bumperbot_controller)/config/bumperbot_controllers.yaml</parameters>
-            </plugin>
-            <plugin filename = "gz-sim-imu-system" name = "gz::sim::systems::Imu">
-            </plugin>
-        </xacro:unless>
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+            <robotNamespace>/</robotNamespace>
+            <robotParam>/robot_description</robotParam>
+            <controlPeriod>0.001</controlPeriod>
+        </plugin>
+
+        <!-- IMU plugin for Gazebo Classic 11 -->
+        <plugin name="gazebo_ros_imu_sensor" filename="libgazebo_ros_imu_sensor.so">
+            <rosTopic>/imu</rosTopic>
+            <frameName>imu_link</frameName>
+            <updateRate>100.0</updateRate>
+            <gaussianNoise>0.0017</gaussianNoise>
+        </plugin>
     </gazebo>
 
     <gazebo reference = "imu_link">

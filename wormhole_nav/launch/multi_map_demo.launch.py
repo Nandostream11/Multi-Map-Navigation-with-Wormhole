@@ -1,30 +1,77 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
 
-def generate_launch_description():
-    nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
-    wormhole_nav_dir = get_package_share_directory('wormhole_nav')
 
+def generate_launch_description():
+    # --- Paths ---
+    pkg_nav2 = get_package_share_directory('nav2_bringup')
+    pkg_wbot = get_package_share_directory('wbot_description')   # used now
+    pkg_wormhole = get_package_share_directory('wormhole_nav')
+
+    world = os.path.join(pkg_wormhole, 'worlds', 'flat.world')
+    map_file = os.path.join(pkg_wormhole, 'maps', 'custom_map.yaml')
+    nav2_params = os.path.join(pkg_wormhole, 'config', 'nav2_params.yaml')
+    wormhole_params = os.path.join(pkg_wormhole, 'config', 'params.yaml')
+
+    urdf_file = os.path.join(pkg_wbot, 'urdf', 'wbot.urdf.xacro')
+
+    # --- Launch description ---
     return LaunchDescription([
+        # 1.  Launch Gazebo Classic
+        ExecuteProcess(
+            cmd=['gazebo', '--verbose', world,
+                 '-s', 'libgazebo_ros_factory.so'],
+            output='screen'
+        ),
+
+        # 2.  Robot state publisher (publishes /robot_description)
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{'use_sim_time': False}],
+            arguments=[urdf_file]
+        ),
+
+        # 3.  Spawn the robot into Gazebo
+        Node(
+            package='gazebo_ros',
+            executable='spawn_entity.py',
+            arguments=['-topic', 'robot_description', '-entity', 'wbot'],
+            output='screen'
+        ),
+
+        # 4.  Nav2 bringup
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(nav2_launch_dir, 'bringup_launch.py')
+                os.path.join(pkg_nav2, 'launch', 'bringup_launch.py')
             ),
             launch_arguments={
-                'map': os.path.join(wormhole_nav_dir, 'maps', 'custom_map.yaml'),
-                'params_file': os.path.join(wormhole_nav_dir, 'config', 'nav2_params.yaml'),
+                'map': map_file,
+                'params_file': nav2_params,
                 'use_sim_time': 'false'
             }.items()
         ),
+
+        # 5.  Wormhole navigation action server
         Node(
             package='wormhole_nav',
             executable='multi_map_action_server',
             name='multi_map_action_server',
             output='screen',
-            parameters=[os.path.join(wormhole_nav_dir, 'config', 'params.yaml')]
-        )
+            parameters=[wormhole_params]
+        ),
+
+        # 6.  RViz2 visualization
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            output='screen'
+        ),
     ])
