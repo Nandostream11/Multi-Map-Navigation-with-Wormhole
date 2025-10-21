@@ -47,6 +47,7 @@
             <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
+        <plugin>gazebo_ros2_control/TransmissionPlugin</plugin>
         </transmission>
 
         <transmission name="wheel_right_trans">
@@ -58,8 +59,21 @@
             <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
+        <plugin>gazebo_ros2_control/TransmissionPlugin</plugin>
         </transmission>
 
     </ros2_control>
 
+    <gazebo>
+      <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+        <!-- <robotNamespace>/</robotNamespace> -->
+        <robotParam>/robot_description</robotParam>
+        <controlPeriod>0.001</controlPeriod>
+        <parameters>$(find wbot_description)/config/ros2_controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+
 </robot>
+
+
+
