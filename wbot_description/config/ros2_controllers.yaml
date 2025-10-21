@@ -1,7 +1,7 @@
 # ROS 2 controllers config for wbot simulation
 controller_manager:
   ros__parameters:
-    update_rate: 50   # Controller update rate (Hz)
+    update_rate: 1000   # Controller update rate (Hz)
 
     # Joint state broadcaster (publishes all joint states)
     joint_state_broadcaster:
@@ -14,7 +14,7 @@ controller_manager:
       ros__parameters:
         left_wheel_names: ['wheel_left_joint']
         right_wheel_names: ['wheel_right_joint']
-        wheel_separation: 0.028        # distance between left & right wheel centers
+        wheel_separation: 0.14022        # distance between left & right wheel centers
         wheel_radius: 0.033            # radius of each wheel (m)
         cmd_vel_timeout: 0.5
         publish_rate: 50

@@ -5,14 +5,14 @@
         <!-- If using Gazebo Classic 11  -->
         <xacro:if value="$(arg is_classic)">
             <hardware>
-            <plugin>gazebo_ros2_control/GazeboSimSystem</plugin>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
             </hardware>
         </xacro:if>
 
         <!-- Otherwise, using Gazebo Sim / Ignition -->
         <xacro:unless value="$(arg is_classic)">
             <hardware>
-            <plugin>gz_ros2_control/GazeboSystem</plugin>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </hardware>
         </xacro:unless>
    
@@ -37,6 +37,28 @@
             <state_interface name = "position"/>
             <state_interface name = "velocity"/>
         </joint>
+
+        <transmission name="wheel_left_trans">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="wheel_left_joint">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="wheel_left_motor">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+        </transmission>
+
+        <transmission name="wheel_right_trans">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="wheel_right_joint">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="wheel_right_motor">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+        </transmission>
 
     </ros2_control>
 
