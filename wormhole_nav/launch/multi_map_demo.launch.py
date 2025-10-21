@@ -9,7 +9,7 @@ import os
 def generate_launch_description():
     # --- Paths ---
     pkg_nav2 = get_package_share_directory('nav2_bringup')
-    pkg_wbot = get_package_share_directory('wbot_description')   # used now
+    pkg_bumperbot = get_package_share_directory('bumperbot_description')   # used now
     pkg_wormhole = get_package_share_directory('wormhole_nav')
 
     world = os.path.join(pkg_wormhole, 'worlds', 'flat.world')
@@ -17,7 +17,7 @@ def generate_launch_description():
     nav2_params = os.path.join(pkg_wormhole, 'config', 'nav2_params.yaml')
     wormhole_params = os.path.join(pkg_wormhole, 'config', 'params.yaml')
 
-    urdf_file = os.path.join(pkg_wbot, 'urdf', 'wbot.urdf.xacro')
+    urdf_file = os.path.join(pkg_bumperbot, 'urdf', 'bumperbot.urdf.xacro')
 
     # --- Launch description ---
     return LaunchDescription([
@@ -42,7 +42,7 @@ def generate_launch_description():
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
-            arguments=['-topic', 'robot_description', '-entity', 'wbot'],
+            arguments=['-topic', 'robot_description', '-entity', 'bumperbot'],
             output='screen'
         ),
 

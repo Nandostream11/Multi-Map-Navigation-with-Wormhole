@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 
-<robot name="wbot" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="bumperbot" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- load proper version of ros2 control -->
-  <xacro:arg name="is_classic" default="true"/>   
+  <xacro:arg name="is_ignition" default="true"/>   
   
 
   <!-- Include Gazebo Parameters -->
-  <xacro:include filename="$(find wbot_description)/urdf/wbot_gazebo.xacro" />
+  <xacro:include filename="$(find bumperbot_description)/urdf/bumperbot_gazebo.xacro" />
   <!-- ros2 control -->
-  <xacro:include filename="$(find wbot_description)/urdf/wbot_ros2_control.xacro" />
+  <xacro:include filename="$(find bumperbot_description)/urdf/bumperbot_ros2_control.xacro" />
 
 
   <link name="base_footprint"/>
@@ -25,13 +25,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/base_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/base_link.STL" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/base_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -53,7 +53,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/wheel_right_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/wheel_right_link.STL" />
       </geometry>
     </visual>
     <collision>
@@ -83,7 +83,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="-1.57 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/wheel_left_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/wheel_left_link.STL" />
       </geometry>
     </visual>
     <collision>
@@ -112,7 +112,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/caster_front_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/caster_front_link.STL" />
       </geometry>
     </visual>
     <collision>
@@ -141,7 +141,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://wbot_description/meshes/caster_rear_link.STL" />
+        <mesh filename="package://bumperbot_description/meshes/caster_rear_link.STL" />
       </geometry>
     </visual>
     <collision>
@@ -170,13 +170,13 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-          <mesh filename="package://wbot_description/meshes/imu_link.STL" scale="1.0"/>
+          <mesh filename="package://bumperbot_description/meshes/imu_link.STL" scale="1.0"/>
         </geometry>
     </visual>
     <collision>
        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <geometry>
-          <mesh filename="package://wbot_description/meshes/imu_link.STL" scale="1.0"/>
+          <mesh filename="package://bumperbot_description/meshes/imu_link.STL" scale="1.0"/>
         </geometry>
     </collision>
   </link>

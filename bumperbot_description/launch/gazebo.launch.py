@@ -12,12 +12,12 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
-    wbot_description = get_package_share_directory("wbot_description")
+    bumperbot_description = get_package_share_directory("bumperbot_description")
     ros_distro = os.environ["ROS_DISTRO"] #ros2 distribution tells us
-    is_classic = "True" if ros_distro == "humble" else "False"
+    is_ignition = "True" if ros_distro == "humble" else "False"
 
     model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
-                                        wbot_description, "urdf", "wbot.urdf.xacro"
+                                        bumperbot_description, "urdf", "bumperbot.urdf.xacro"
                                         ),
                                       description="Absolute path to robot urdf file"
     )
@@ -25,18 +25,18 @@ def generate_launch_description():
     gazebo_resource_path = SetEnvironmentVariable(
         name="GZ_SIM_RESOURCE_PATH",
         value=[
-            str(Path(wbot_description).parent.resolve())
+            str(Path(bumperbot_description).parent.resolve())
             ]
         )
     
     ros_distro = os.environ["ROS_DISTRO"]
-    is_classic = "True" if ros_distro == "humble" else "False"
+    is_ignition = "True" if ros_distro == "humble" else "False"
     
     robot_description = ParameterValue(Command([
             "xacro ",
             LaunchConfiguration("model"),
-            " is_classic:=",
-            is_classic
+            " is_ignition:=",
+            is_ignition
         ]),
         value_type=str
     )
@@ -62,7 +62,7 @@ def generate_launch_description():
         executable="create",
         output="screen",
         arguments=["-topic", "robot_description",
-                   "-name", "wbot"],
+                   "-name", "bumperbot"],
     )
     # imp for simulating sensors with gazebo like imu..
     # ros2 msg type from gazebo msg
