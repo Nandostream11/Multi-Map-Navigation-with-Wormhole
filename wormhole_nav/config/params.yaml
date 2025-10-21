@@ -1,5 +1,5 @@
-db_path: ~/ros2_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/sql/wormholes.db
+db_path: ~/wormhole_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/sql/wormholes.db
 
 maps:
-  roomA: ~/ros2_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/maps/custom_map.yaml
-  roomB: ~/ros2_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/maps/maze.yaml
+  roomA: ~/wormhole_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/maps/custom_map.yaml
+  roomB: ~/wormhole_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/maps/maze.yaml
