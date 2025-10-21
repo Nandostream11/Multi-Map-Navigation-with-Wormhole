@@ -62,7 +62,7 @@ def generate_launch_description():
             executable='parameter_bridge',
             arguments=[
                 '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-                '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
+                '/odom@nav2_msgs/msg/Odometry@gz.msgs.Odometry',
                 '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
                 '/tf@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
                 '/tf_static@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V'

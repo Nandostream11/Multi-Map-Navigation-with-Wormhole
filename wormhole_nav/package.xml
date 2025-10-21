@@ -8,21 +8,36 @@
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
 
-  <depend>wormhole_action_interfaces</depend>
+  <!-- Core ROS2 dependencies -->
   <depend>rclcpp</depend>
   <depend>rclcpp_action</depend>
+  <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
-  <depend>nav_msgs</depend>
+  <depend>nav_msgs</depend> 
   <depend>nav2_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
   
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
-
+  <!-- Custom action interface -->
+  <depend>wormhole_action_interfaces</depend>
+  
+  <!-- System dependencies - SQLite3 is usually system installed -->
+  <depend>sqlite3</depend>
+  
+<!-- Launch and execution dependencies -->
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>nav2_bringup</exec_depend>
-  
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

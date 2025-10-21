@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_msgs/srv/load_map.hpp>
 
 class MapManager {
     public:

@@ -15,6 +15,7 @@ struct Wormhole {
 class DBInterface{
     public:
         explicit DBInterface(const std::string &db_path);
+        ~DBInterface();  // destructor
         bool open();
         void close();
         std::vector<Wormhole> getWormholes(const std::string &map_fom, const std::string &map_to);

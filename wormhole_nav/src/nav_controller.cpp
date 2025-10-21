@@ -29,7 +29,7 @@ bool NavController::sendGoal(const geometry_msgs::msg::PoseStamped &goal){
     auto future_res=client_->async_get_result(handle);
     rclcpp::spin_until_future_complete(node_, future_res);
     auto res=future_res.get();
-    RCLCPP_INFO(node_->get_logger(), "Nav finished with code: %d", res.code);
+    RCLCPP_INFO(node_->get_logger(), "Nav finished with code: %d", static_cast<int>(res.code));
     return res.code==rclcpp_action::ResultCode::SUCCEEDED;
 }
 
