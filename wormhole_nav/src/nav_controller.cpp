@@ -1,6 +1,6 @@
 #include "wormhole_nav/nav_controller.hpp"
 
-NavController::NavController(rclcpp::Node::SharedPtr node) : node_(node){
+NavController::NavController(std::shared_ptr<rclcpp::Node> node) : node_(node){
     client_=rclcpp_action::create_client<NavigateToPose>(node_, "navigate_to_pose");
 }
 

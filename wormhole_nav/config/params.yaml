@@ -1,6 +1,9 @@
 multi_map_action_server:
   ros__parameters:
-    db_path: "~/ros2_ws/src/wormhole_nav/sql/wormholes.db"
+    use_sim_time: True
+    db_path: "wormholes.db"  # Relative path, file should be in package share directory
     maps:
-      room1: "~/ros2_ws/src/Multi-Map-Navigation-with-Wormhole/wormhole_nav/maps/custom_map.yaml"
-      room2: "~/ros2_ws/src/wormhole_nav/maps/maze.yaml"
+      room1: "custom_map.yaml"
+      room2: "maze.yaml"
+#       room1: "src/wormhole_nav/maps/custom_map.yaml"
+#       room2: "src/wormhole_nav/maps/maze.yaml"

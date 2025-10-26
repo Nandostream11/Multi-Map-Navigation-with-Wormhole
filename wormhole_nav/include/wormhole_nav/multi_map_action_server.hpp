@@ -18,6 +18,7 @@ private:
     std::shared_ptr<DBInterface> db_;
     std::shared_ptr<MapManager> map_manager_;
     std::shared_ptr<NavController> nav_;
+    rclcpp::TimerBase::SharedPtr init_timer_;  // ADD THIS LINE
 
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID &uuid,

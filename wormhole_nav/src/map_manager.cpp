@@ -1,7 +1,7 @@
 #include "wormhole_nav/map_manager.hpp"
 #include <nav2_msgs/srv/load_map.hpp>
 
-MapManager::MapManager(rclcpp::Node::SharedPtr node): node_(node){
+MapManager::MapManager(std::shared_ptr<rclcpp::Node> node): node_(node){
     current_map_ = "default";
 }
 

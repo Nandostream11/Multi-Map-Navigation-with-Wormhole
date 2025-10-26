@@ -9,11 +9,11 @@ public:
     using NavigateToPose = nav2_msgs::action::NavigateToPose;
     using GoalHandleNavToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
 
-    explicit NavController(rclcpp::Node::SharedPtr node);
+    explicit NavController(std::shared_ptr<rclcpp::Node> node);
     bool sendGoal(const geometry_msgs::msg::PoseStamped &goal);
     void cancelGoal();
 
 private:
-    rclcpp::Node::SharedPtr node_;
+    std::shared_ptr<rclcpp::Node> node_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_;
 };
