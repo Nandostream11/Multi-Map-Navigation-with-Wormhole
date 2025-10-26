@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -52,7 +52,7 @@ def generate_launch_description():
             ]
         ),
 
-        # 2. Robot description and state
+        # 2. Robot description and state (start immediately)
         Node(
             package="robot_state_publisher",
             executable="robot_state_publisher",
@@ -69,119 +69,153 @@ def generate_launch_description():
             parameters=[{'use_sim_time': True}]
         ),
 
-        # 3. Spawn robot
-        Node(
-            package="ros_gz_sim",
-            executable="create",
-            output="screen",
-            arguments=["-topic", "robot_description", "-name", "bumperbot"],
+        # 3. Spawn robot after a short delay to ensure Gazebo is ready
+        TimerAction(
+            period=5.0,
+            actions=[
+                Node(
+                    package="ros_gz_sim",
+                    executable="create",
+                    output="screen",
+                    arguments=["-topic", "robot_description", "-name", "bumperbot"],
+                )
+            ]
         ),
 
-        # 4. CRITICAL: Odometry bridge from Gazebo
-        Node(
-            package="ros_gz_bridge",
-            executable="parameter_bridge",
-            arguments=[
-                "/model/bumperbot/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
-            ],
-            remappings=[
-                ("/model/bumperbot/odometry", "/odom")
-            ],
-            output="screen"
+        # 4. CRITICAL: Odometry bridge from Gazebo (start after robot spawns)
+        TimerAction(
+            period=6.0,
+            actions=[
+                Node(
+                    package="ros_gz_bridge",
+                    executable="parameter_bridge",
+                    arguments=[
+                        "/model/bumperbot/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
+                    ],
+                    remappings=[
+                        ("/model/bumperbot/odometry", "/odom")
+                    ],
+                    output="screen"
+                )
+            ]
         ),
 
-        # 5. IMU bridge
-        Node(
-            package="ros_gz_bridge",
-            executable="parameter_bridge",
-            arguments=["/imu@sensor_msgs/msg/Imu[gz.msgs.IMU"],
-            remappings=[("/imu","/imu/out")]
+        # 5. IMU bridge (start after robot spawns)
+        TimerAction(
+            period=6.5,
+            actions=[
+                Node(
+                    package="ros_gz_bridge",
+                    executable="parameter_bridge",
+                    arguments=[
+        "/model/bumperbot/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
+                    ],
+                    output="screen",
+                    remappings=[
+                        ("/model/bumperbot/odometry", "/odom")
+                    ]
+                )
+            ]
         ),
 
-        # 6. Optional: Static transform if Gazebo doesn't publish odom frame
-        # This creates the odom frame, but the transform will be updated by the odometry bridge
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='odom_frame_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_footprint'],
-            parameters=[{'use_sim_time': True}]
+        # 6. Static odom frame publisher (start early to create the frame)
+        TimerAction(
+            period=3.0,
+            actions=[
+                Node(
+                    package='tf2_ros',
+                    executable='static_transform_publisher',
+                    name='odom_frame_publisher',
+                    arguments=['--frame-id', 'odom', '--child-frame-id', 'base_footprint'],
+                    parameters=[{'use_sim_time': True}]
+                )
+            ]
         ),
 
-        # 7. Complete Nav2 Stack (with delayed start to ensure TF is ready)
-        Node(
-            package='nav2_controller',
-            executable='controller_server',
-            name='controller_server',
-            output='screen',
-            parameters=[nav2_params],
+        # 7. Complete Nav2 Stack (start after TF tree is established)
+        TimerAction(
+            period=10.0,
+            actions=[
+                Node(
+                    package='nav2_controller',
+                    executable='controller_server',
+                    name='controller_server',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_planner',
+                    executable='planner_server',
+                    name='planner_server',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_behaviors',
+                    executable='behavior_server',
+                    name='behavior_server',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_bt_navigator',
+                    executable='bt_navigator',
+                    name='bt_navigator',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_waypoint_follower',
+                    executable='waypoint_follower',
+                    name='waypoint_follower',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_amcl',
+                    executable='amcl',
+                    name='amcl',
+                    output='screen',
+                    parameters=[nav2_params],
+                ),
+
+                Node(
+                    package='nav2_lifecycle_manager',
+                    executable='lifecycle_manager',
+                    name='lifecycle_manager_navigation',
+                    output='screen',
+                    parameters=[{
+                        'use_sim_time': True,
+                        'autostart': True,
+                        'node_names': [
+                            'controller_server',
+                            'planner_server',
+                            'behavior_server',
+                            'bt_navigator',
+                            'waypoint_follower',
+                            'amcl'
+                        ]
+                    }]
+                )
+            ]
         ),
 
-        Node(
-            package='nav2_planner',
-            executable='planner_server',
-            name='planner_server',
-            output='screen',
-            parameters=[nav2_params],
-        ),
-
-        Node(
-            package='nav2_behaviors',
-            executable='behavior_server',
-            name='behavior_server',
-            output='screen',
-            parameters=[nav2_params],
-        ),
-
-        Node(
-            package='nav2_bt_navigator',
-            executable='bt_navigator',
-            name='bt_navigator',
-            output='screen',
-            parameters=[nav2_params],
-        ),
-
-        Node(
-            package='nav2_waypoint_follower',
-            executable='waypoint_follower',
-            name='waypoint_follower',
-            output='screen',
-            parameters=[nav2_params],
-        ),
-
-        Node(
-            package='nav2_amcl',
-            executable='amcl',
-            name='amcl',
-            output='screen',
-            parameters=[nav2_params],
-        ),
-
-        Node(
-            package='nav2_lifecycle_manager',
-            executable='lifecycle_manager',
-            name='lifecycle_manager_navigation',
-            output='screen',
-            parameters=[{
-                'use_sim_time': True,
-                'autostart': True,
-                'node_names': [
-                    'controller_server',
-                    'planner_server',
-                    'behavior_server',
-                    'bt_navigator',
-                    'waypoint_follower',
-                    'amcl'
-                ]
-            }]
-        ),
-
-        # 8. Your action server
-        Node(
-            package='wormhole_nav',
-            executable='multi_map_action_server',
-            name='multi_map_action_server',
-            output='screen',
-            parameters=[wormhole_params]
+        # 8. Your action server (start with Nav2 stack)
+        TimerAction(
+            period=10.0,
+            actions=[
+                Node(
+                    package='wormhole_nav',
+                    executable='multi_map_action_server',
+                    name='multi_map_action_server',
+                    output='screen',
+                    parameters=[wormhole_params]
+                )
+            ]
         ),
     ])
